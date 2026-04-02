@@ -29,7 +29,8 @@
   - [依赖清单](#依赖清单)
 - [架构概览](#架构概览)
 - [版本更新记录](#版本更新记录)
-  - [anycode v1.2.0 (最新)](#anycode-v120-2026-04-02)
+  - [anycode v1.2.1 (最新)](#anycode-v121-2026-04-02)
+  - [anycode v1.2.0](#anycode-v120-2026-04-02)
   - [anycode v1.1.2 (pip)](#anycode-ai-v112-pip-发行版)
   - [anycode v1.0.4 (构建脚本)](#anycode-v104-构建脚本版)
   - [anycode v1.0.0 (npm)](#anycode-v100-npm-核心版)
@@ -706,6 +707,28 @@ claude-code-source-code/
 ---
 
 ## 版本更新记录
+
+---
+
+### anycode v1.2.1 (2026-04-02)
+
+**发行方式：** `pip install anycode-ai` / 源码构建
+
+#### 更新内容
+
+##### 修复
+
+- **修复 MiniMax M2.7 文本输出为空的问题：** MiniMax M2.7 的推理内容使用 `<think>...</think>` 标签包裹在 `content` 字段中（而非 DeepSeek-R1 的独立 `reasoning_content` 字段）。此前流式翻译器无法识别该格式，导致 `<think>` 标签内容混入正式回答，UI 显示异常（内容为空或显示原始标签）
+- **流式翻译器新增 `<think>` 标签解析状态机：** 支持跨 chunk 边界的 `<think>`/`</think>` 标签检测，将推理内容正确分离为 thinking block，正式回答分离为 text block
+
+##### 技术细节
+
+- 新增 `_processContentWithThinkTags()` 方法：解析 content 中的 `<think>` 标签
+- 新增 `_findPartialTag()` 方法：处理标签被 chunk 边界截断的情况
+- 新增 `_emitThinking()` / `_emitText()` 辅助方法：统一管理 thinking/text block 的生命周期
+- 支持两种推理格式：
+  - **DeepSeek-R1 格式：** 独立的 `reasoning_content` 字段（原有支持）
+  - **MiniMax 格式：** `content` 字段中的 `<think>...</think>` 标签（新增支持）
 
 ---
 

@@ -66,6 +66,10 @@ anycode -p "修复这个 bug"
 
 ## 版本记录
 
+### v1.2.1
+- 修复 MiniMax M2.7 文本输出为空的问题：支持 `<think>` 标签格式的推理内容解析
+- 推理内容正确显示为 thinking block，正式回答正常输出
+
 ### v1.2.0
 - 修复 MiniMax 服务商配置：API 端点迁移至 `api.minimax.io`，默认模型更新为 MiniMax-M2.7
 - 新增 Kimi（月之暗面）预设服务商
