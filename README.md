@@ -73,7 +73,7 @@ anycode 内置 **9 个预设服务商** + 自定义端点，支持所有兼容 O
 | **OpenAI** | `https://api.openai.com/v1` | gpt-4o | 16,384 | 128,000 |
 | **DeepSeek（深度求索）** | `https://api.deepseek.com/v1` | deepseek-chat | 8,192 | 64,000 |
 | **Qwen（通义千问/DashScope）** | `https://dashscope.aliyuncs.com/compatible-mode/v1` | qwen-max | 8,192 | 32,000 |
-| **MiniMax** | `https://api.minimax.chat/v1` | MiniMax-Text-01 | 16,384 | 1,000,000 |
+| **MiniMax** | `https://api.minimax.io/v1` | MiniMax-M2.7 | 16,384 | 204,800 |
 | **GLM（智谱清言）** | `https://open.bigmodel.cn/api/paas/v4` | glm-4-plus | 8,192 | 128,000 |
 | **SiliconFlow（硅基流动）** | `https://api.siliconflow.cn/v1` | deepseek-ai/DeepSeek-V3 | 8,192 | 64,000 |
 | **Kimi（月之暗面/Moonshot）** | `https://api.moonshot.cn/v1` | moonshot-v1-auto | 8,192 | 128,000 |
@@ -87,7 +87,7 @@ anycode 内置 **9 个预设服务商** + 自定义端点，支持所有兼容 O
 | OpenAI | gpt-4o, gpt-4o-mini, gpt-4-turbo, o1, o3, gpt-5.1 |
 | DeepSeek | deepseek-chat (V3), deepseek-reasoner (R1) |
 | 通义千问 | qwen-max, qwen-plus, qwen-turbo |
-| MiniMax | MiniMax-Text-01, abab6.5 |
+| MiniMax | MiniMax-M2.7, MiniMax-M2.7-highspeed, MiniMax-M2.5, MiniMax-M2.5-highspeed, MiniMax-M2.1, MiniMax-M2 |
 | 智谱 GLM | glm-4-plus, glm-4 |
 | SiliconFlow | DeepSeek-V3, Qwen2.5, Yi 系列 |
 | Kimi | moonshot-v1-auto, moonshot-v1-8k/32k/128k |
@@ -969,7 +969,7 @@ claude-code-source-code/
 
 | 供应商 | 已知限制 |
 |--------|---------|
-| **MiniMax** | MiniMax 的 OpenAI 兼容 API 可能需要额外的请求头（如 `GroupId`）。当前适配器仅发送标准 Bearer Token，部分模型可能认证失败。**M2.7 等新模型需确认 API 端点和认证方式** |
+| **MiniMax** | 已更新至新版 API 端点 (`api.minimax.io`)。不支持图片和文档输入。`-highspeed` 后缀变体速度更快（~100 tokens/s vs ~60 tokens/s）。温度参数范围 (0.0, 1.0]，推荐值 1.0。多轮工具调用时需保留完整助手消息（含 thinking 内容） |
 | **Ollama** | 不支持 `stream_options.include_usage`（适配器已做特殊处理跳过）。本地模型能力有限，复杂工具调用可能失败 |
 | **SiliconFlow** | 作为模型聚合平台，不同底层模型的工具调用能力差异大 |
 | **Kimi (Moonshot)** | 工具调用格式可能有细微差异，复杂场景下可能出错 |
