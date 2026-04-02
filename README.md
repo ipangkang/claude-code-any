@@ -897,6 +897,132 @@ claude-code-source-code/
 
 ---
 
+## 功能兼容性对照表（支持 vs 不支持）
+
+> 以下是 anycode 相对于原版 Claude Code 的功能兼容性详细对照。  
+> **"支持"** = 使用第三方模型时功能正常可用  
+> **"部分支持"** = 功能可用但有限制或降级  
+> **"不支持"** = 功能完全不可用或依赖 Anthropic 基础设施
+
+### 完全支持的功能
+
+| 功能 | 说明 |
+|------|------|
+| **OpenAI 兼容 API 调用** | 核心功能。所有 API 请求通过适配器翻译为 OpenAI 格式，上层代码无感知 |
+| **文件操作工具** | Read、Write、Edit、Glob、Grep 全部可用，与模型供应商无关 |
+| **终端命令 (Bash)** | BashTool 完全可用，命令执行在本地，不依赖任何 API |
+| **代码编辑 (Edit)** | 精确字符串替换编辑，本地执行 |
+| **文件搜索 (Glob/Grep)** | 本地文件搜索，与模型无关 |
+| **网页获取 (WebFetch)** | 直接通过 HTTP 获取网页内容，不经过 Anthropic 代理 |
+| **子代理系统 (Agent)** | 子代理自动继承父代理的供应商配置，并行执行正常 |
+| **Git Worktree 隔离** | 完全本地操作，与模型无关 |
+| **MCP 协议** | Model Context Protocol 服务器连接、工具发现、资源访问均正常 |
+| **权限系统** | 工具审批、工作区信任对话框完整保留 |
+| **上下文自动压缩 (/compact)** | 根据配置的 contextWindow 自动压缩，适配各供应商 |
+| **会话管理** | 保存、恢复、继续会话完全可用 |
+| **自动记忆提取** | 通过 EXTRACT_MEMORIES 门控启用，使用配置的模型执行 |
+| **沙箱运行时** | `@anthropic-ai/sandbox-runtime` 是本地组件，不依赖 Anthropic |
+| **项目指令文件 (.anycode.md)** | 本地文件读取，与模型无关 |
+| **非交互模式 (-p)** | 脚本/管道模式完全可用 |
+| **环境变量配置** | ANYCODE_* 系列环境变量正常工作 |
+| **供应商配置向导** | 首次运行的交互式配置完全可用 |
+| **Jupyter Notebook 编辑** | NotebookEditTool 本地执行 |
+| **LSP 集成** | Language Server Protocol 本地通信 |
+| **PowerShell (Windows)** | 本地执行，与模型无关 |
+
+### 部分支持的功能
+
+| 功能 | 支持程度 | 限制说明 |
+|------|---------|---------|
+| **图片/多模态输入** | 大部分可用 | 适配器正确转换 Anthropic 图片格式为 OpenAI 格式（base64 和 URL）。但需要模型本身支持视觉能力（如 gpt-4o 支持，gpt-3.5 不支持） |
+| **PDF 文件阅读** | 大部分可用 | 通过 FileReadTool 读取后作为图片块发送。需要模型支持视觉能力 |
+| **DeepSeek-R1 推理链** | 仅限特定模型 | 适配器将 `reasoning_content` 映射为 thinking block。仅 DeepSeek-R1、QwQ 等返回该字段的模型可用 |
+| **Extended Thinking（扩展思考）** | 仅限特定模型 | 需要模型支持 thinking 配置。Claude 原生支持，OpenAI o1/o3 部分支持，其他模型不支持 |
+| **费用追踪** | 显示但不准确 | 定价表硬编码为 Claude 模型价格。使用第三方模型时会回退到 Sonnet 定价（默认值），**显示的费用与实际不符** |
+| **Bash 安全分类器** | 取决于模型能力 | 使用配置的模型进行命令安全分析，模型能力较弱时分类准确度下降 |
+| **转录分类器（自动权限）** | 取决于模型能力 | 使用配置的模型判断是否自动授予权限，模型能力较弱时可能误判 |
+| **远程控制 (/rc)** | 需额外条件 | `__anycode_has_provider` 标记绕过了订阅检查，但仍依赖 GrowthBook 功能标记和 Anthropic 的桥接服务基础设施。实际连接可能失败 |
+| **斜杠命令 /model** | 基本可用 | 可切换模型，但模型列表通过 `/v1/models` 端点获取，部分供应商不支持该端点或返回格式不同 |
+| **自动更新检查** | 指向错误源 | 仍检查原版 `@anthropic-ai/claude-code` 的 npm 包版本，不适用于 anycode |
+
+### 不支持的功能
+
+| 功能 | 原因 |
+|------|------|
+| **网页搜索 (WebSearch)** | 使用 Anthropic SDK 的 `BetaWebSearchTool20250305`，直接调用 Anthropic 搜索基础设施。**第三方模型无法使用** |
+| **语音模式 (Voice Mode)** | 硬编码需要 Anthropic OAuth token，连接 `voice_stream` WebSocket 端点。**架构限制，无法修复** |
+| **OAuth 登录 (auth login)** | `anycode auth login` 仍尝试与 Anthropic OAuth 服务通信。**第三方供应商用户不需要此功能** |
+| **GrowthBook 功能标记** | 仍尝试连接 Anthropic 的 GrowthBook 服务器获取功能开关。**服务器不可达时使用安全默认值，但部分功能可能被意外禁用** |
+| **遥测/数据分析** | 分析事件仍路由到 Anthropic 的 Datadog + FirstParty 日志端点。**未完全禁用，会产生无意义的网络请求** |
+| **KAIROS 自主代理** | 需要 108 个缺失的内部模块（daemon、proactive、assistant 等）。**代码在 npm 发布时被死代码消除** |
+| **工作流脚本 (Workflow)** | 需要 `WORKFLOW_SCRIPTS` 门控模块，已被编译时移除 |
+| **上下文折叠 (Context Collapse)** | 需要内部模块 `contextCollapse/`，已被编译时移除 |
+| **多代理协调器 (Coordinator)** | 需要内部模块 `coordinator/workerAgent.js`，已被编译时移除 |
+| **主动通知 (Proactive)** | 需要内部模块 `proactive/`，已被编译时移除 |
+| **远程技能搜索** | 需要内部模块 `skillSearch/`，已被编译时移除 |
+| **浏览器自动化 (WebBrowser)** | 需要 `WEB_BROWSER_TOOL` 门控模块，已被编译时移除 |
+| **终端面板捕获** | 需要 `TERMINAL_PANEL` 门控模块，已被编译时移除 |
+| **GitHub PR 订阅** | 需要 `KAIROS_GITHUB_WEBHOOKS` 门控模块，已被编译时移除 |
+| **推送通知** | 需要 `KAIROS_PUSH_NOTIFICATION` 门控模块，已被编译时移除 |
+
+### 供应商特定限制
+
+| 供应商 | 已知限制 |
+|--------|---------|
+| **MiniMax** | MiniMax 的 OpenAI 兼容 API 可能需要额外的请求头（如 `GroupId`）。当前适配器仅发送标准 Bearer Token，部分模型可能认证失败。**M2.7 等新模型需确认 API 端点和认证方式** |
+| **Ollama** | 不支持 `stream_options.include_usage`（适配器已做特殊处理跳过）。本地模型能力有限，复杂工具调用可能失败 |
+| **SiliconFlow** | 作为模型聚合平台，不同底层模型的工具调用能力差异大 |
+| **Kimi (Moonshot)** | 工具调用格式可能有细微差异，复杂场景下可能出错 |
+| **通用限制** | 所有供应商的 `max_tokens` / `max_completion_tokens` 参数兼容性不同，适配器会自动尝试切换，但某些供应商可能仍然报错 |
+
+### 功能支持一览图
+
+```
+功能状态图例: ✅ 完全支持  ⚠️ 部分支持  ❌ 不支持
+
+核心编程能力
+├── ✅ 文件读取/写入/编辑
+├── ✅ 终端命令执行
+├── ✅ 代码搜索 (Glob/Grep)
+├── ✅ 子代理并行执行
+├── ✅ Git Worktree 隔离
+├── ✅ MCP 协议
+└── ✅ 权限与安全系统
+
+AI 模型交互
+├── ✅ OpenAI 兼容 API 调用
+├── ✅ 流式响应
+├── ✅ 函数调用 / 工具使用
+├── ⚠️ 图片/多模态 (需模型支持)
+├── ⚠️ 推理链显示 (仅 DeepSeek-R1/QwQ)
+├── ⚠️ Extended Thinking (仅特定模型)
+└── ⚠️ 费用追踪 (显示不准确)
+
+网络功能
+├── ✅ 网页获取 (WebFetch)
+├── ❌ 网页搜索 (WebSearch) — 需 Anthropic 后端
+└── ⚠️ 远程控制 (/rc) — 需 Anthropic 基础设施
+
+Anthropic 专属功能
+├── ❌ 语音模式
+├── ❌ OAuth 登录
+├── ❌ GrowthBook 功能标记
+├── ❌ 遥测数据 (仍发送至 Anthropic)
+└── ❌ 自动更新 (检查原版包)
+
+被编译时移除的功能 (108 个内部模块)
+├── ❌ KAIROS 自主代理
+├── ❌ 工作流脚本
+├── ❌ 上下文折叠
+├── ❌ 多代理协调器
+├── ❌ 主动通知
+├── ❌ 浏览器自动化
+├── ❌ 远程技能搜索
+└── ❌ 终端面板捕获
+```
+
+---
+
 ## 免责声明
 
 > **本仓库中所有源码版权归 Anthropic 和 Claude 所有。** 本仓库仅用于技术研究和科研爱好者交流学习参考。**严禁任何个人、机构及组织将其用于商业用途、盈利性活动、非法用途及其他未经授权的场景。** 若内容涉及侵犯您的合法权益、知识产权或存在其他侵权问题，请及时联系我们，我们将第一时间核实并予以删除处理。
