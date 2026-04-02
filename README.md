@@ -29,6 +29,7 @@
   - [依赖清单](#依赖清单)
 - [架构概览](#架构概览)
 - [版本更新记录](#版本更新记录)
+  - [anycode v1.2.0 (最新)](#anycode-v120-2026-04-02)
   - [anycode v1.1.2 (pip)](#anycode-ai-v112-pip-发行版)
   - [anycode v1.0.4 (构建脚本)](#anycode-v104-构建脚本版)
   - [anycode v1.0.0 (npm)](#anycode-v100-npm-核心版)
@@ -705,6 +706,35 @@ claude-code-source-code/
 ---
 
 ## 版本更新记录
+
+---
+
+### anycode v1.2.0 (2026-04-02)
+
+**发行方式：** `pip install anycode-ai` / 源码构建  
+**版本统一：** npm、pip、构建脚本同步升级至 1.2.0
+
+#### 更新内容
+
+##### 修复
+
+- **修复 MiniMax 服务商 401 认证失败：** MiniMax 已将 API 端点从 `api.minimax.chat` 迁移至 `api.minimax.io`，旧端点返回 401 错误。已更新预设配置
+- **修正 MiniMax 上下文窗口：** 从错误的 1,000,000 修正为官方标注的 204,800 tokens
+- **同步修复 setup_wizard.py：** pip 包的 Python 配置向导中 MiniMax 预设同步更新
+
+##### 新增
+
+- **功能兼容性对照表：** 新增完整的功能支持状态说明，明确标注每个 Claude Code 功能在 anycode 中属于"完全支持"、"部分支持"还是"不支持"
+- **供应商特定限制说明：** 针对 MiniMax、Ollama、SiliconFlow、Kimi 等供应商分别标注已知限制
+- **功能支持树状图：** 以直观的树状结构展示核心编程能力、AI 模型交互、网络功能、Anthropic 专属功能的支持状态
+
+##### 变更
+
+- **MiniMax 默认模型：** 从 `MiniMax-Text-01` 更新为 `MiniMax-M2.7`（MiniMax 最新旗舰模型，~60 tokens/s）
+- **MiniMax API 端点：** `https://api.minimax.chat/v1` → `https://api.minimax.io/v1`
+- **MiniMax 可用模型列表更新：** MiniMax-M2.7, M2.7-highspeed, M2.5, M2.5-highspeed, M2.1, M2.1-highspeed, M2
+- **pip 包 README 改为中文：** 包含完整的服务商列表和版本记录
+- **版本号统一：** npm (`package.json`)、pip (`pyproject.toml`)、构建脚本 (`build.mjs`) 统一为 1.2.0
 
 ---
 
