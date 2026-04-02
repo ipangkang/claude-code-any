@@ -1,0 +1,3 @@
+[console_scripts]
+anycode = anycode.cli:main
+anycode-setup = anycode.setup_wizard:run_setup
