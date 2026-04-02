@@ -53,4 +53,4 @@ echo ""
 echo "=== Done ==="
 ls -lh "$SCRIPT_DIR/dist/"*.whl "$SCRIPT_DIR/dist/"*.tar.gz 2>/dev/null
 echo ""
-echo "Install:  pip install dist/anycode-1.0.0-py3-none-any.whl"
+echo "Install:  pip install dist/anycode_ai-1.2.0-py3-none-any.whl"

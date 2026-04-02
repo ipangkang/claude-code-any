@@ -10,7 +10,7 @@ PRESETS = [
     {"name": "OpenAI", "baseUrl": "https://api.openai.com/v1", "model": "gpt-4o"},
     {"name": "DeepSeek", "baseUrl": "https://api.deepseek.com/v1", "model": "deepseek-chat"},
     {"name": "Qwen (DashScope)", "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1", "model": "qwen-max"},
-    {"name": "MiniMax", "baseUrl": "https://api.minimax.chat/v1", "model": "MiniMax-Text-01"},
+    {"name": "MiniMax", "baseUrl": "https://api.minimax.io/v1", "model": "MiniMax-M2.7"},
     {"name": "GLM (Zhipu)", "baseUrl": "https://open.bigmodel.cn/api/paas/v4", "model": "glm-4-plus"},
     {"name": "SiliconFlow", "baseUrl": "https://api.siliconflow.cn/v1", "model": "deepseek-ai/DeepSeek-V3"},
     {"name": "Ollama (Local)", "baseUrl": "http://localhost:11434/v1", "model": "llama3"},
