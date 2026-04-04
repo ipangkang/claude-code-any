@@ -29,7 +29,8 @@
   - [依赖清单](#依赖清单)
 - [架构概览](#架构概览)
 - [版本更新记录](#版本更新记录)
-  - [anycode v1.2.2 (最新)](#anycode-v122-2026-04-04)
+  - [anycode v1.3.0 (最新)](#anycode-v130-2026-04-04)
+  - [anycode v1.2.2](#anycode-v122-2026-04-04)
   - [anycode v1.2.1](#anycode-v121-2026-04-02)
   - [anycode v1.2.0](#anycode-v120-2026-04-02)
   - [anycode v1.1.2 (pip)](#anycode-ai-v112-pip-发行版)
@@ -708,6 +709,43 @@ claude-code-source-code/
 ---
 
 ## 版本更新记录
+
+---
+
+### anycode v1.3.0 (2026-04-04)
+
+**发行方式：** `pip install anycode-ai` / 源码构建  
+**重要更新：** 完成全部 P0 优先级痛点修复
+
+#### 更新内容
+
+##### P0-1: 禁用 Anthropic 遥测
+
+- **彻底切断向 Anthropic 发送遥测数据：** 当检测到第三方供应商配置时，`isAnalyticsDisabled()` 返回 `true`，Datadog 和 FirstParty 事件日志全部禁用
+- 事件函数仍可调用（不破坏内部逻辑），但数据不再发送到任何外部端点
+- 消除了无意义的网络请求和隐私顾虑
+
+##### P0-2: 禁用 GrowthBook 远程功能标记
+
+- **切断 GrowthBook 服务器连接：** GrowthBook 依赖 `is1PEventLoggingEnabled()`，遥测禁用后 GrowthBook 自动禁用
+- 所有功能标记检查立即返回默认值，不再尝试连接 Anthropic 服务器
+- 加快启动速度，消除功能被远程意外关闭的风险
+
+##### P0-3: 修复费用显示
+
+- **第三方供应商只显示 token 用量：** 不再显示虚假的美元费用（此前硬编码 Claude 定价，DeepSeek 实际 ¥0.01 显示 $0.50）
+- 总计行显示 `Total tokens: xxx input, xxx output` 替代 `Total cost: $x.xx`
+- 每个模型的用量明细也去掉了美元标注
+
+##### P0-4: 隐藏不可用的 WebSearch 工具
+
+- **第三方供应商自动隐藏 WebSearchTool：** `isEnabled()` 检测到 `__anycode_has_provider` 时直接返回 `false`
+- 工具列表中不再显示 WebSearch，避免用户尝试后才发现不可用
+
+##### P0-5: auth login 命令重定向
+
+- **`anycode auth login` 不再进入 Anthropic OAuth 流程：** 检测到第三方供应商时，直接提示用户编辑 `~/.anycode/provider.json` 或使用 `/provider` 命令
+- 避免用户困惑，以为需要 Anthropic 账号才能使用
 
 ---
 

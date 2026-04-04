@@ -166,6 +166,11 @@ export const WebSearchTool = buildTool({
     return summary ? `Searching for ${summary}` : 'Searching the web'
   },
   isEnabled() {
+    // anycode: WebSearch requires Anthropic backend — disable for third-party providers
+    if ((globalThis as any).__anycode_has_provider) {
+      return false
+    }
+
     const provider = getAPIProvider()
     const model = getMainLoopModel()
 

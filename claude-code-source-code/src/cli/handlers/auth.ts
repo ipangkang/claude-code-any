@@ -120,6 +120,15 @@ export async function authLogin({
   console?: boolean
   claudeai?: boolean
 }): Promise<void> {
+  // anycode: redirect to provider setup when using third-party provider
+  if ((globalThis as any).__anycode_has_provider) {
+    process.stderr.write(
+      '\x1b[33mYou are using a third-party provider. Anthropic OAuth login is not needed.\x1b[0m\n' +
+      'To reconfigure your provider, edit ~/.anycode/provider.json or run /provider in the TUI.\n',
+    )
+    return
+  }
+
   if (useConsole && claudeai) {
     process.stderr.write(
       'Error: --console and --claudeai cannot be used together.\n',

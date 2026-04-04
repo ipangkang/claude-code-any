@@ -37,6 +37,7 @@ import {
   getCurrentProjectConfig,
   saveCurrentProjectConfig,
 } from './utils/config.js'
+import { hasCachedProviderConfig } from './services/api/providerConfig.js'
 import {
   getContextWindowForModel,
   getModelMaxOutputTokens,
@@ -209,6 +210,7 @@ function formatModelUsage(): string {
     accumulated.costUSD += usage.costUSD
   }
 
+  const isThirdParty = hasCachedProviderConfig()
   let result = 'Usage by model:'
   for (const [shortName, usage] of Object.entries(usageByShortName)) {
     const usageString =
@@ -219,23 +221,24 @@ function formatModelUsage(): string {
       (usage.webSearchRequests > 0
         ? `, ${formatNumber(usage.webSearchRequests)} web search`
         : '') +
-      ` (${formatCost(usage.costUSD)})`
+      (isThirdParty ? '' : ` (${formatCost(usage.costUSD)})`)
     result += `\n` + `${shortName}:`.padStart(21) + usageString
   }
   return result
 }
 
 export function formatTotalCost(): string {
-  const costDisplay =
-    formatCost(getTotalCostUSD()) +
-    (hasUnknownModelCost()
-      ? ' (costs may be inaccurate due to usage of unknown models)'
-      : '')
+  const isThirdParty = hasCachedProviderConfig()
+
+  // Third-party providers: show token usage only (cost data is inaccurate)
+  const costLine = isThirdParty
+    ? `Total tokens:          ${formatNumber(getTotalInputTokens())} input, ${formatNumber(getTotalOutputTokens())} output`
+    : `Total cost:            ${formatCost(getTotalCostUSD())}${hasUnknownModelCost() ? ' (costs may be inaccurate due to usage of unknown models)' : ''}`
 
   const modelUsageDisplay = formatModelUsage()
 
   return chalk.dim(
-    `Total cost:            ${costDisplay}\n` +
+    `${costLine}\n` +
       `Total duration (API):  ${formatDuration(getTotalAPIDuration())}
 Total duration (wall): ${formatDuration(getTotalDuration())}
 Total code changes:    ${getTotalLinesAdded()} ${getTotalLinesAdded() === 1 ? 'line' : 'lines'} added, ${getTotalLinesRemoved()} ${getTotalLinesRemoved() === 1 ? 'line' : 'lines'} removed

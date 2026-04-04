@@ -7,6 +7,7 @@
 
 import { isEnvTruthy } from '../../utils/envUtils.js'
 import { isTelemetryDisabled } from '../../utils/privacyLevel.js'
+import { hasCachedProviderConfig } from '../api/providerConfig.js'
 
 /**
  * Check if analytics operations should be disabled
@@ -22,7 +23,8 @@ export function isAnalyticsDisabled(): boolean {
     isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
     isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY) ||
-    isTelemetryDisabled()
+    isTelemetryDisabled() ||
+    hasCachedProviderConfig() // anycode: disable telemetry when using third-party provider
   )
 }
 
