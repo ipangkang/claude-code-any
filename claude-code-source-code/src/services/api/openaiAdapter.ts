@@ -4,7 +4,7 @@
  */
 
 import { OpenAIStreamTranslator, type OpenAIChunk, type AnthropicStreamEvent } from './openaiStreamTranslator.js'
-import { loadProviderConfig, getMaxTokensForProvider } from './providerConfig.js'
+import { loadProviderConfig, getMaxTokensForProvider, providerSupportsImages } from './providerConfig.js'
 
 // ── Anthropic Types (subset needed for translation) ──
 
@@ -158,13 +158,24 @@ export function translateRequest(anthropicReq: AnthropicRequest): OpenAIRequest 
         } else if (block.type === 'text') {
           contentParts.push({ type: 'text', text: (block as AnthropicTextBlock).text })
         } else if (block.type === 'image') {
-          // Anthropic image format → OpenAI image_url format
-          const img = block as any
-          if (img.source?.type === 'base64') {
-            const dataUrl = `data:${img.source.media_type};base64,${img.source.data}`
-            contentParts.push({ type: 'image_url', image_url: { url: dataUrl } })
-          } else if (img.source?.type === 'url') {
-            contentParts.push({ type: 'image_url', image_url: { url: img.source.url } })
+          // Check if provider supports images
+          if (config && !providerSupportsImages(config)) {
+            // Provider doesn't support images — skip and warn
+            if (!(translateRequest as any)._imageWarned) {
+              console.error(`\x1b[33m⚠ Warning: ${config.provider} does not support image input. Images will be skipped.\x1b[0m`)
+              console.error(`\x1b[33m  To use images, switch to a provider that supports vision (e.g. OpenAI gpt-4o, Qwen qwen-vl-max).\x1b[0m`);
+              (translateRequest as any)._imageWarned = true
+            }
+            contentParts.push({ type: 'text', text: '[Image omitted: current provider does not support image input]' })
+          } else {
+            // Anthropic image format → OpenAI image_url format
+            const img = block as any
+            if (img.source?.type === 'base64') {
+              const dataUrl = `data:${img.source.media_type};base64,${img.source.data}`
+              contentParts.push({ type: 'image_url', image_url: { url: dataUrl } })
+            } else if (img.source?.type === 'url') {
+              contentParts.push({ type: 'image_url', image_url: { url: img.source.url } })
+            }
           }
         }
       }

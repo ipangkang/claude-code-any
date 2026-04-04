@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "anycode-ai"
-version = "1.2.1"
+version = "1.2.2"
 description = "Universal coding agent for your terminal — use any OpenAI-compatible LLM"
 readme = "README.md"
 license = {text = "MIT"}

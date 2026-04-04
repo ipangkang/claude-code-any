@@ -9,6 +9,7 @@ export interface ProviderPreset {
   models?: string[]       // All available models for this provider
   maxTokens?: number
   contextWindow?: number  // Total context window size in tokens
+  supportsImages?: boolean // Whether the provider supports image/vision input
 }
 
 export interface ProviderConfig {
@@ -21,15 +22,15 @@ export interface ProviderConfig {
 }
 
 export const PROVIDER_PRESETS: ProviderPreset[] = [
-  { name: 'OpenAI', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o', maxTokens: 16384, contextWindow: 128000 },
-  { name: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', defaultModel: 'deepseek-chat', maxTokens: 8192, contextWindow: 64000 },
-  { name: 'Qwen (DashScope)', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', defaultModel: 'qwen-max', maxTokens: 8192, contextWindow: 32000 },
-  { name: 'MiniMax', baseUrl: 'https://api.minimax.io/v1', defaultModel: 'MiniMax-M2.7', maxTokens: 16384, contextWindow: 204800 },
-  { name: 'GLM (Zhipu)', baseUrl: 'https://open.bigmodel.cn/api/paas/v4', defaultModel: 'glm-4-plus', maxTokens: 8192, contextWindow: 128000 },
-  { name: 'SiliconFlow', baseUrl: 'https://api.siliconflow.cn/v1', defaultModel: 'deepseek-ai/DeepSeek-V3', maxTokens: 8192, contextWindow: 64000 },
-  { name: 'Kimi (Moonshot)', baseUrl: 'https://api.moonshot.cn/v1', defaultModel: 'moonshot-v1-auto', maxTokens: 8192, contextWindow: 128000 },
-  { name: 'Ollama (Local)', baseUrl: 'http://localhost:11434/v1', defaultModel: 'llama3', maxTokens: 4096, contextWindow: 8000 },
-  { name: 'Custom', baseUrl: '', defaultModel: '', contextWindow: 32000 },
+  { name: 'OpenAI', baseUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o', maxTokens: 16384, contextWindow: 128000, supportsImages: true },
+  { name: 'DeepSeek', baseUrl: 'https://api.deepseek.com/v1', defaultModel: 'deepseek-chat', maxTokens: 8192, contextWindow: 64000, supportsImages: false },
+  { name: 'Qwen (DashScope)', baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1', defaultModel: 'qwen-max', maxTokens: 8192, contextWindow: 32000, supportsImages: true },
+  { name: 'MiniMax', baseUrl: 'https://api.minimax.io/v1', defaultModel: 'MiniMax-M2.7', maxTokens: 16384, contextWindow: 204800, supportsImages: false },
+  { name: 'GLM (Zhipu)', baseUrl: 'https://open.bigmodel.cn/api/paas/v4', defaultModel: 'glm-4-plus', maxTokens: 8192, contextWindow: 128000, supportsImages: true },
+  { name: 'SiliconFlow', baseUrl: 'https://api.siliconflow.cn/v1', defaultModel: 'deepseek-ai/DeepSeek-V3', maxTokens: 8192, contextWindow: 64000, supportsImages: false },
+  { name: 'Kimi (Moonshot)', baseUrl: 'https://api.moonshot.cn/v1', defaultModel: 'moonshot-v1-auto', maxTokens: 8192, contextWindow: 128000, supportsImages: true },
+  { name: 'Ollama (Local)', baseUrl: 'http://localhost:11434/v1', defaultModel: 'llama3', maxTokens: 4096, contextWindow: 8000, supportsImages: false },
+  { name: 'Custom', baseUrl: '', defaultModel: '', contextWindow: 32000, supportsImages: true },
 ]
 
 function getConfigDir(): string {
@@ -99,6 +100,12 @@ export function getMaxTokensForProvider(config: ProviderConfig): number {
 export function getContextWindowForProvider(config: ProviderConfig): number {
   if (config.contextWindow) return config.contextWindow
   return findPreset(config.provider)?.contextWindow || 32000
+}
+
+export function providerSupportsImages(config: ProviderConfig): boolean {
+  const preset = findPreset(config.provider)
+  // Default to true for unknown providers (Custom, env, etc.)
+  return preset?.supportsImages ?? true
 }
 
 /**
