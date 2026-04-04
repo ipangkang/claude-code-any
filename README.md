@@ -29,7 +29,8 @@
   - [依赖清单](#依赖清单)
 - [架构概览](#架构概览)
 - [版本更新记录](#版本更新记录)
-  - [anycode v1.2.1 (最新)](#anycode-v121-2026-04-02)
+  - [anycode v1.2.2 (最新)](#anycode-v122-2026-04-04)
+  - [anycode v1.2.1](#anycode-v121-2026-04-02)
   - [anycode v1.2.0](#anycode-v120-2026-04-02)
   - [anycode v1.1.2 (pip)](#anycode-ai-v112-pip-发行版)
   - [anycode v1.0.4 (构建脚本)](#anycode-v104-构建脚本版)
@@ -707,6 +708,30 @@ claude-code-source-code/
 ---
 
 ## 版本更新记录
+
+---
+
+### anycode v1.2.2 (2026-04-04)
+
+**发行方式：** `pip install anycode-ai` / 源码构建
+
+#### 更新内容
+
+##### 新增
+
+- **图片不支持时的用户提醒：** 当用户向不支持图片输入的供应商（如 MiniMax、DeepSeek、SiliconFlow、Ollama）上传图片时，终端会显示黄色警告提示，并建议切换到支持视觉的供应商
+- **供应商图片能力标记：** 为 `ProviderPreset` 新增 `supportsImages` 字段，明确标记每个预设供应商的图片支持状态
+
+##### 变更
+
+- **图片安全降级：** 不支持图片的供应商不再将图片发送给 API（避免报错），而是替换为 `[Image omitted: current provider does not support image input]` 文本占位符
+- **警告仅显示一次：** 同一会话中多次上传图片时，警告只在首次出现，不会重复刷屏
+
+##### 各供应商图片支持状态
+
+| 支持图片 | 不支持图片 |
+|---------|-----------|
+| OpenAI, Qwen, GLM, Kimi, Custom | MiniMax, DeepSeek, SiliconFlow, Ollama |
 
 ---
 
